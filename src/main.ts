@@ -13,10 +13,10 @@ async function bootstrap() {
   app.setGlobalPrefix('/api/v1');
 
   const config = new DocumentBuilder()
-    .setTitle('Cats example')
-    .setDescription('The cats API description')
+    .setTitle('Assosa Shop API')
+    .setDescription('API documentation for Assosa Shop')
     .setVersion('1.0')
-    .addTag('cats')
+    .addTag('assosa-shop')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
 
