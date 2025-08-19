@@ -1,0 +1,32 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
+import { ProductsRepository } from './products.repository';
+import { ProductQueryDto } from './dto/product.dto';
+
+@Injectable()
+export class ProductsService {
+  constructor(private readonly repo: ProductsRepository) {}
+
+  async create(dto: CreateProductDto) {
+    return this.repo.create(dto);
+  }
+
+  async findAll(query: ProductQueryDto = {}) {
+    return this.repo.findAll(query);
+  }
+
+  async findOne(id: string) {
+    const product = await this.repo.findOne(id);
+    if (!product) throw new NotFoundException('Product not found');
+    return product;
+  }
+
+  async update(id: string, dto: UpdateProductDto) {
+    return this.repo.update(id, dto);
+  }
+
+  async delete(id: string) {
+    return this.repo.delete(id);
+  }
+}
