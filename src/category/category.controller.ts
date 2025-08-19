@@ -17,6 +17,7 @@ import {
   CategoryQueryDto,
 } from './dto/category.dto';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../auth/dto/auth.dto';
 
@@ -26,21 +27,21 @@ export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Post()
-  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.MASTER_ADMIN, Role.ORDER_MANAGER)
   async create(@Body() dto: CreateCategoryDto) {
     return this.categoryService.create(dto);
   }
 
   @Put(':id')
-  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.MASTER_ADMIN, Role.ORDER_MANAGER)
   async update(@Param('id') id: string, @Body() dto: UpdateCategoryDto) {
     return this.categoryService.update(id, dto);
   }
 
   @Delete(':id')
-  @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.MASTER_ADMIN, Role.ORDER_MANAGER)
   async delete(@Param('id') id: string) {
     return this.categoryService.delete(id);
