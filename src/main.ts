@@ -1,8 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import * as dotenv from 'dotenv';
+import { HttpExceptionFilter } from './common/handlers/http.handler';
 
 async function bootstrap() {
   dotenv.config();
@@ -16,11 +17,21 @@ async function bootstrap() {
     .setTitle('Assosa Shop API')
     .setDescription('API documentation for Assosa Shop')
     .setVersion('1.0')
-    .addTag('assosa-shop')
+    .addBearerAuth()
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
 
   SwaggerModule.setup('/api/v1/docs', app, documentFactory);
+
+  app.useGlobalFilters(new HttpExceptionFilter());
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
 
   const port = process.env.PORT;
   await app.listen(port || 4000);

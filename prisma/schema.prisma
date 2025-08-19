@@ -25,7 +25,8 @@ model User {
   firstName     String         @map("first_name")
   lastName      String         @map("last_name")
   phone         String         @unique
-  email         String?        @unique
+  email         String         @unique
+  profileImage  String?        @map("profile_image") // URL to profile image
   passwordHash  String         @map("password_hash")
   address       String?
   language      String         @default("English") // e.g., 'Amharic', 'Sudanese Arabic', 'English'
@@ -188,4 +189,11 @@ model DeliveryAssignment {
   order         Order   @relation(fields: [orderId], references: [id])
 
   @@map("delivery_assignments")
+}
+
+model OTP {
+  id        String   @id @default(uuid())
+  phone     String   @unique
+  hash      String
+  createdAt DateTime @default(now())
 }
