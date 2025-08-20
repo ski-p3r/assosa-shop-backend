@@ -8,6 +8,8 @@ import { ProductVariantModule } from './product-variant/product-variant.module';
 import { DiscountModule } from './discount/discount.module';
 import { CartModule } from './cart/cart.module';
 import { PromotionModule } from './promotion/promotion.module';
+import { OrderModule } from './order/order.module';
+import { ReviewModule } from './review/review.module';
 import * as Joi from 'joi';
 
 @Module({
@@ -29,6 +31,8 @@ import * as Joi from 'joi';
     DiscountModule,
     CartModule,
     PromotionModule,
+    OrderModule,
+    ReviewModule,
   ],
   controllers: [],
   providers: [],
