@@ -33,8 +33,8 @@ model User {
   orders        Order[]
   reviews       Review[]
   notifications Notification[]
-  Cart          Cart[]
-  Wishlist      Wishlist[]
+  carts         Cart[]
+  wishlists     Wishlist[]
 
   @@map("users")
 }
@@ -80,8 +80,8 @@ model ProductVariant {
   imageUrl        String?        @map("image_url") // Variant-specific image
   product         Product        @relation(fields: [productId], references: [id])
   orderItems      OrderItem[]
-  CartItem        CartItem[]
-  WishlistItem    WishlistItem[]
+  wishlistItems   WishlistItem[] // Opposite relation for WishlistItem
+  cartItems       CartItem[]     @relation("CartItemToProductVariant") // Opposite relation for CartItem
 
   @@map("product_variants")
 }
@@ -206,14 +206,14 @@ model Cart {
 }
 
 model CartItem {
-  id        String          @id @default(uuid())
-  cartId    String          @map("cart_id")
-  productId String          @map("product_id")
-  variantId String?         @map("variant_id")
-  quantity  Int             @default(1)
-  cart      Cart            @relation(fields: [cartId], references: [id])
-  product   Product         @relation(fields: [productId], references: [id])
-  variant   ProductVariant? @relation(fields: [variantId], references: [id])
+  id        String         @id @default(uuid())
+  cartId    String         @map("cart_id")
+  productId String         @map("product_id")
+  variantId String         @map("variant_id")
+  quantity  Int            @default(1)
+  cart      Cart           @relation(fields: [cartId], references: [id])
+  product   Product        @relation(fields: [productId], references: [id])
+  variant   ProductVariant @relation(fields: [variantId], references: [id], name: "CartItemToProductVariant")
 
   @@map("cart_items")
 }
