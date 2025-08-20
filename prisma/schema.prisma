@@ -62,7 +62,6 @@ model Product {
   category     Category?        @relation(fields: [categoryId], references: [id])
   variants     ProductVariant[] // Variants with specific prices and images
   reviews      Review[]
-  discounts    Discount[] // Discounts applied to this product
   orderItems   OrderItem[] // Relation to OrderItem
   CartItem     CartItem[]
   WishlistItem WishlistItem[]
@@ -81,7 +80,6 @@ model ProductVariant {
   imageUrl        String?        @map("image_url") // Variant-specific image
   product         Product        @relation(fields: [productId], references: [id])
   orderItems      OrderItem[]
-  discounts       Discount[] // Discounts applied to this variant
   CartItem        CartItem[]
   WishlistItem    WishlistItem[]
 
@@ -89,16 +87,11 @@ model ProductVariant {
 }
 
 model Discount {
-  id         String          @id @default(uuid())
-  productId  String?         @map("product_id")
-  variantId  String?         @map("variant_id")
-  type       DiscountType // e.g., 'PERCENTAGE', 'FIXED'
-  value      Float // e.g., 10.0 for 10% or 100.0 for fixed amount
-  startDate  DateTime?       @map("start_date")
-  endDate    DateTime?       @map("end_date")
-  product    Product?        @relation(fields: [productId], references: [id])
-  variant    ProductVariant? @relation(fields: [variantId], references: [id])
-  orderItems OrderItem[] // Tracks which orders used this discount
+  id        String       @id @default(uuid())
+  type      DiscountType // e.g., 'PERCENTAGE', 'FIXED'
+  value     Float // e.g., 10.0 for 10% or 100.0 for fixed amount
+  startDate DateTime?    @map("start_date")
+  endDate   DateTime?    @map("end_date")
 
   @@map("discounts")
 }
@@ -131,7 +124,6 @@ model OrderItem {
   order      Order           @relation(fields: [orderId], references: [id])
   product    Product         @relation(fields: [productId], references: [id])
   variant    ProductVariant? @relation(fields: [variantId], references: [id])
-  discount   Discount?       @relation(fields: [discountId], references: [id])
 
   @@map("order_items")
 }
