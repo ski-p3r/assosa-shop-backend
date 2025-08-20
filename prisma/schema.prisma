@@ -159,8 +159,7 @@ model Review {
 model Promotion {
   id        String    @id @default(uuid())
   title     String
-  type      String // e.g., 'percentage', 'fixed'
-  value     Float
+  description String?
   startDate DateTime? @map("start_date")
   endDate   DateTime? @map("end_date")
   bannerUrl String?   @map("banner_url")

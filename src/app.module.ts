@@ -7,6 +7,7 @@ import { ProductsModule } from './products/products.module';
 import { ProductVariantModule } from './product-variant/product-variant.module';
 import { DiscountModule } from './discount/discount.module';
 import { CartModule } from './cart/cart.module';
+import { PromotionModule } from './promotion/promotion.module';
 import * as Joi from 'joi';
 
 @Module({
@@ -27,6 +28,7 @@ import * as Joi from 'joi';
     ProductVariantModule,
     DiscountModule,
     CartModule,
+    PromotionModule,
   ],
   controllers: [],
   providers: [],
