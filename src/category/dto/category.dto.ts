@@ -6,10 +6,6 @@ export class CreateCategoryDto {
   @IsString()
   name: string;
 
-  @ApiProperty()
-  @IsString()
-  slug: string;
-
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()

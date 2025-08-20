@@ -5,17 +5,30 @@ import {
   UpdateCategoryDto,
   CategoryQueryDto,
 } from './dto/category.dto';
+import { slugify } from '@/common/utils/slug.urils';
 
 @Injectable()
 export class CategoryRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateCategoryDto) {
-    return this.prisma.category.create({ data: dto });
+    return this.prisma.category.create({
+      data: {
+        ...dto,
+        slug: slugify(dto.name ?? ''),
+        parentId: dto.parentId || null, // Ensure parentId is null if not provided
+      },
+    });
   }
 
   async update(id: string, dto: UpdateCategoryDto) {
-    return this.prisma.category.update({ where: { id }, data: dto });
+    return this.prisma.category.update({
+      where: { id },
+      data: {
+        ...dto,
+        ...(dto.name ? { slug: slugify(dto.name) } : {}),
+      },
+    });
   }
 
   async delete(id: string) {

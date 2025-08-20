@@ -8,10 +8,6 @@ export class CreateProductDto {
 
   @ApiProperty()
   @IsString()
-  slug: string;
-
-  @ApiProperty()
-  @IsString()
   @IsOptional()
   description?: string;
 

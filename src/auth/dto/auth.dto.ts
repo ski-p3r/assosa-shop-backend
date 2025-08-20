@@ -53,8 +53,8 @@ export class RegisterDto {
 
 export class LoginDto {
   @ApiProperty()
-  @IsPhoneNumber('ET')
-  phone: string;
+  @IsEmail()
+  email: string;
 
   @ApiProperty()
   @IsString()

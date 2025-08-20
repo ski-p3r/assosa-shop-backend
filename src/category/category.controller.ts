@@ -17,9 +17,9 @@ import {
   CategoryQueryDto,
 } from './dto/category.dto';
 import { RolesGuard } from '../common/guards/roles.guard';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../auth/dto/auth.dto';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
 @ApiTags('category')
 @Controller('category')

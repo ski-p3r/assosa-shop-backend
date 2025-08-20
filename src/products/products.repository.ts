@@ -3,17 +3,29 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductQueryDto } from './dto/product.dto';
+import { slugify } from '@/common/utils/slug.urils';
 
 @Injectable()
 export class ProductsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateProductDto) {
-    return this.prisma.product.create({ data: dto });
+    return this.prisma.product.create({
+      data: {
+        ...dto,
+        slug: slugify(dto.name),
+      },
+    });
   }
 
   async update(id: string, dto: UpdateProductDto) {
-    return this.prisma.product.update({ where: { id }, data: dto });
+    return this.prisma.product.update({
+      where: { id },
+      data: {
+        ...dto,
+        ...(dto.name ? { slug: slugify(dto.name) } : {}),
+      },
+    });
   }
 
   async delete(id: string) {
@@ -34,7 +46,7 @@ export class ProductsRepository {
 
   async findAll(query: ProductQueryDto) {
     const { search, categoryId } = query;
-    return this.prisma.product.findMany({
+    const products = await this.prisma.product.findMany({
       where: {
         AND: [
           search
@@ -50,7 +62,15 @@ export class ProductsRepository {
         ],
       },
       orderBy: { createdAt: 'desc' },
-      include: { category: true },
+      include: {
+        category: true,
+        variants: {
+          take: 1,
+          orderBy: { id: 'asc' },
+        },
+      },
     });
+
+    return products;
   }
 }
