@@ -10,6 +10,7 @@ import { CartModule } from './cart/cart.module';
 import { PromotionModule } from './promotion/promotion.module';
 import { OrderModule } from './order/order.module';
 import { ReviewModule } from './review/review.module';
+import { PaymentModule } from './payment/payment.module';
 import * as Joi from 'joi';
 
 @Module({
@@ -21,6 +22,9 @@ import * as Joi from 'joi';
         DATABASE_URL: Joi.string().required(),
         JWT_ACCESS_SECRET: Joi.string().required(),
         JWT_REFRESH_SECRET: Joi.string().required(),
+        UPLOAD_TOKEN: Joi.string().required(),
+        UPLOAD_URL: Joi.string().uri().required(),
+        CHAPA_SECRET_KEY: Joi.string().required(),
       }),
     }),
     PrismaModule,
@@ -33,6 +37,7 @@ import * as Joi from 'joi';
     PromotionModule,
     OrderModule,
     ReviewModule,
+    PaymentModule,
   ],
   controllers: [],
   providers: [],
