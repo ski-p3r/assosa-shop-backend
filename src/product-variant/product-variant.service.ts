@@ -64,13 +64,4 @@ export class ProductVariantService {
 
     return this.repo.update(id, { isAvailable: newStatus });
   }
-
-  async getVariantsWithDiscounts(productId?: string) {
-    const variants = await this.repo.findAvailableVariants(productId);
-
-    // Filter variants that have active discounts
-    return variants.filter(
-      (variant) => variant.discounts && variant.discounts.length > 0,
-    );
-  }
 }

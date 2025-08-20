@@ -21,15 +21,6 @@ export class ProductVariantRepository {
             basePrice: true,
           },
         },
-        discounts: {
-          select: {
-            id: true,
-            type: true,
-            value: true,
-            startDate: true,
-            endDate: true,
-          },
-        },
       },
     });
   }
@@ -46,15 +37,6 @@ export class ProductVariantRepository {
             slug: true,
             description: true,
             basePrice: true,
-          },
-        },
-        discounts: {
-          select: {
-            id: true,
-            type: true,
-            value: true,
-            startDate: true,
-            endDate: true,
           },
         },
       },
@@ -76,23 +58,6 @@ export class ProductVariantRepository {
             slug: true,
             description: true,
             basePrice: true,
-          },
-        },
-        discounts: {
-          select: {
-            id: true,
-            type: true,
-            value: true,
-            startDate: true,
-            endDate: true,
-          },
-        },
-        orderItems: {
-          select: {
-            id: true,
-            quantity: true,
-            price: true,
-            status: true,
           },
         },
       },
@@ -136,15 +101,6 @@ export class ProductVariantRepository {
             basePrice: true,
           },
         },
-        discounts: {
-          select: {
-            id: true,
-            type: true,
-            value: true,
-            startDate: true,
-            endDate: true,
-          },
-        },
       },
     });
   }
@@ -152,17 +108,6 @@ export class ProductVariantRepository {
   async findByProductId(productId: string) {
     return this.prisma.productVariant.findMany({
       where: { productId },
-      include: {
-        discounts: {
-          select: {
-            id: true,
-            type: true,
-            value: true,
-            startDate: true,
-            endDate: true,
-          },
-        },
-      },
     });
   }
 
@@ -190,16 +135,7 @@ export class ProductVariantRepository {
             slug: true,
           },
         },
-        discounts: {
-          select: {
-            id: true,
-            type: true,
-            value: true,
-            startDate: true,
-            endDate: true,
-          },
-        },
       },
     });
   }
-} 
+}

@@ -36,9 +36,8 @@ export class ProductsRepository {
     return this.prisma.product.findUnique({
       where: { id },
       include: {
-        category: true,
         variants: true,
-        discounts: true,
+        // discounts: true,
         reviews: true,
       },
     });
@@ -63,7 +62,7 @@ export class ProductsRepository {
       },
       orderBy: { createdAt: 'desc' },
       include: {
-        category: true,
+        // category: true,
         variants: {
           take: 1,
           orderBy: { id: 'asc' },

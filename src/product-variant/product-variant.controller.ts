@@ -91,22 +91,6 @@ export class ProductVariantController {
     return this.productVariantService.findAvailableVariants(productId);
   }
 
-  @Get('with-discounts')
-  @ApiOperation({ summary: 'Get product variants that have active discounts' })
-  @ApiQuery({
-    name: 'productId',
-    required: false,
-    description: 'Filter by product ID',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Variants with discounts retrieved successfully',
-    type: [ProductVariantDto],
-  })
-  getVariantsWithDiscounts(@Query('productId') productId?: string) {
-    return this.productVariantService.getVariantsWithDiscounts(productId);
-  }
-
   @Get('product/:productId')
   @ApiOperation({ summary: 'Get all variants for a specific product' })
   @ApiResponse({
