@@ -23,10 +23,12 @@ export class ProductsService {
   }
 
   async update(id: string, dto: UpdateProductDto) {
+    await this.findOne(id);
     return this.repo.update(id, dto);
   }
 
   async delete(id: string) {
+    await this.findOne(id);
     return this.repo.delete(id);
   }
 }

@@ -52,6 +52,7 @@ model Category {
 }
 
 model Product {
+
   id           String           @id @default(uuid())
   name         String
   slug         String           @unique // e.g., 'smartphone-64gb-black'
@@ -80,6 +81,7 @@ model ProductVariant {
   imageUrl        String?        @map("image_url") // Variant-specific image
   product         Product        @relation(fields: [productId], references: [id])
   orderItems      OrderItem[]
+
   wishlistItems   WishlistItem[] // Opposite relation for WishlistItem
   cartItems       CartItem[]     @relation("CartItemToProductVariant") // Opposite relation for CartItem
 
@@ -87,11 +89,13 @@ model ProductVariant {
 }
 
 model Discount {
-  id        String       @id @default(uuid())
-  type      DiscountType // e.g., 'PERCENTAGE', 'FIXED'
-  value     Float // e.g., 10.0 for 10% or 100.0 for fixed amount
-  startDate DateTime?    @map("start_date")
-  endDate   DateTime?    @map("end_date")
+  id         String          @id @default(uuid())
+  type       DiscountType // e.g., 'PERCENTAGE', 'FIXED'
+  value      Float // e.g., 10.0 for 10% or 100.0 for fixed amount
+  startDate  DateTime?       @map("start_date")
+  endDate    DateTime?       @map("end_date")
+   // Tracks which orders used this discount
+
 
   @@map("discounts")
 }
