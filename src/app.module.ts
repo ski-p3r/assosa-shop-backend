@@ -6,6 +6,7 @@ import { CategoryModule } from './category/category.module';
 import { ProductsModule } from './products/products.module';
 import { ProductVariantModule } from './product-variant/product-variant.module';
 import { DiscountModule } from './discount/discount.module';
+import { CartModule } from './cart/cart.module';
 import * as Joi from 'joi';
 
 @Module({
@@ -25,6 +26,7 @@ import * as Joi from 'joi';
     ProductsModule,
     ProductVariantModule,
     DiscountModule,
+    CartModule,
   ],
   controllers: [],
   providers: [],

@@ -33,6 +33,8 @@ model User {
   orders        Order[]
   reviews       Review[]
   notifications Notification[]
+  carts         Cart[]
+  wishlists     Wishlist[]
 
   @@map("users")
 }
@@ -50,34 +52,38 @@ model Category {
 }
 
 model Product {
-  id          String           @id @default(uuid())
-  name        String
-  slug        String           @unique // e.g., 'smartphone-64gb-black'
-  description String?
-  categoryId  String?          @map("category_id")
-  basePrice   Float            @map("base_price") // Base price if no variants
-  createdAt   DateTime         @default(now()) @map("created_at")
-  category    Category?        @relation(fields: [categoryId], references: [id])
-  variants    ProductVariant[] // Variants with specific prices and images
-  reviews     Review[]
- 
-  orderItems  OrderItem[] // Relation to OrderItem
+
+  id           String           @id @default(uuid())
+  name         String
+  slug         String           @unique // e.g., 'smartphone-64gb-black'
+  description  String?
+  categoryId   String?          @map("category_id")
+  basePrice    Float            @map("base_price") // Base price if no variants
+  createdAt    DateTime         @default(now()) @map("created_at")
+  category     Category?        @relation(fields: [categoryId], references: [id])
+  variants     ProductVariant[] // Variants with specific prices and images
+  reviews      Review[]
+  orderItems   OrderItem[] // Relation to OrderItem
+  CartItem     CartItem[]
+  WishlistItem WishlistItem[]
 
   @@map("products")
 }
 
 model ProductVariant {
-  id              String      @id @default(uuid())
-  productId       String      @map("product_id")
+  id              String         @id @default(uuid())
+  productId       String         @map("product_id")
   variantName     String // e.g., 'Red', 'Large', '64GB'
   price           Float // Variant-specific price
-  stockQuantity   Int         @default(0) @map("stock_quantity")
-  isAvailable     Boolean     @default(true) @map("is_available")
-  procurementTime String?     @map("procurement_time") // e.g., '3 days'
-  imageUrl        String?     @map("image_url") // Variant-specific image
-  product         Product     @relation(fields: [productId], references: [id])
+  stockQuantity   Int            @default(0) @map("stock_quantity")
+  isAvailable     Boolean        @default(true) @map("is_available")
+  procurementTime String?        @map("procurement_time") // e.g., '3 days'
+  imageUrl        String?        @map("image_url") // Variant-specific image
+  product         Product        @relation(fields: [productId], references: [id])
   orderItems      OrderItem[]
- 
+
+  wishlistItems   WishlistItem[] // Opposite relation for WishlistItem
+  cartItems       CartItem[]     @relation("CartItemToProductVariant") // Opposite relation for CartItem
 
   @@map("product_variants")
 }
@@ -89,6 +95,7 @@ model Discount {
   startDate  DateTime?       @map("start_date")
   endDate    DateTime?       @map("end_date")
    // Tracks which orders used this discount
+
 
   @@map("discounts")
 }
@@ -121,7 +128,6 @@ model OrderItem {
   order      Order           @relation(fields: [orderId], references: [id])
   product    Product         @relation(fields: [productId], references: [id])
   variant    ProductVariant? @relation(fields: [variantId], references: [id])
-  
 
   @@map("order_items")
 }
@@ -191,4 +197,49 @@ model OTP {
   phone     String   @unique
   hash      String
   createdAt DateTime @default(now())
+}
+
+model Cart {
+  id        String     @id @default(uuid())
+  userId    String     @map("user_id")
+  user      User       @relation(fields: [userId], references: [id])
+  items     CartItem[]
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  @@map("carts")
+}
+
+model CartItem {
+  id        String         @id @default(uuid())
+  cartId    String         @map("cart_id")
+  productId String         @map("product_id")
+  variantId String         @map("variant_id")
+  quantity  Int            @default(1)
+  cart      Cart           @relation(fields: [cartId], references: [id])
+  product   Product        @relation(fields: [productId], references: [id])
+  variant   ProductVariant @relation(fields: [variantId], references: [id], name: "CartItemToProductVariant")
+
+  @@map("cart_items")
+}
+
+model Wishlist {
+  id        String         @id @default(uuid())
+  userId    String?        @map("user_id")
+  user      User?          @relation(fields: [userId], references: [id])
+  items     WishlistItem[]
+  createdAt DateTime       @default(now()) @map("created_at")
+
+  @@map("wishlists")
+}
+
+model WishlistItem {
+  id         String          @id @default(uuid())
+  wishlistId String          @map("wishlist_id")
+  productId  String          @map("product_id")
+  variantId  String?         @map("variant_id")
+  wishlist   Wishlist        @relation(fields: [wishlistId], references: [id])
+  product    Product         @relation(fields: [productId], references: [id])
+  variant    ProductVariant? @relation(fields: [variantId], references: [id])
+
+  @@map("wishlist_items")
 }
