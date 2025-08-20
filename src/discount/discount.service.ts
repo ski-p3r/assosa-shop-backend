@@ -6,7 +6,7 @@ import { DiscountRepository } from './discount.repository';
 @Injectable()
 export class DiscountService {
   constructor(private readonly repo: DiscountRepository) {}
-  async create( createDiscountDto: CreateDiscountDto) {
+  async create(createDiscountDto: CreateDiscountDto) {
     return await this.repo.create(createDiscountDto);
   }
 

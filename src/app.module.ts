@@ -7,6 +7,7 @@ import { ProductsModule } from './products/products.module';
 import { ProductVariantModule } from './product-variant/product-variant.module';
 import { DiscountModule } from './discount/discount.module';
 import { CartModule } from './cart/cart.module';
+import { PromotionModule } from './promotion/promotion.module';
 import { OrderModule } from './order/order.module';
 import { ReviewModule } from './review/review.module';
 import * as Joi from 'joi';
@@ -29,6 +30,7 @@ import * as Joi from 'joi';
     ProductVariantModule,
     DiscountModule,
     CartModule,
+    PromotionModule,
     OrderModule,
     ReviewModule,
   ],
