@@ -29,11 +29,11 @@ export class AuthService {
     const payload = { sub: userId, phone };
     const accessToken = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_ACCESS_SECRET'),
-      expiresIn: '15m',
+      expiresIn: '30d', // 30 days
     });
     const refreshToken = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_REFRESH_SECRET'),
-      expiresIn: '7d',
+      expiresIn: '60d', // 60 days
     });
     return { accessToken, refreshToken };
   }
