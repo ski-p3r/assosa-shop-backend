@@ -33,8 +33,6 @@ export class PaymentService {
         'Payment for order ' + invoiceNumber.replace(/[^a-zA-Z0-9 ]/g, ''),
     };
 
-    console.log('chapaPayload', chapaPayload);
-
     const response = await axios.post(
       'https://api.chapa.co/v1/transaction/initialize',
       chapaPayload,
