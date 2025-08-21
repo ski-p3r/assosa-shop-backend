@@ -31,6 +31,10 @@ export class PaymentService {
       'customization[title]': 'Order Payment',
       'customization[description]':
         'Payment for order ' + invoiceNumber.replace(/[^a-zA-Z0-9 ]/g, ''),
+      meta: {
+        orderId: dto.orderId,
+        customerId: customerId,
+      },
     };
 
     const response = await axios.post(
@@ -48,11 +52,108 @@ export class PaymentService {
     return response.data;
   }
 
-  async initializeInvoice(
-    dto: InitializePaymentDto,
-    customerId: string,
-    paymentMethod: string,
-  ) {
+  async handleChapaWebhook(body: any) {
+    // Support both flat and nested (body.data) payloads
+    const data = body.data ? body.data : body;
+    if (!data || !data.tx_ref) {
+      throw new NotFoundException('Invalid webhook data');
+    }
+
+    const { tx_ref, status } = data;
+    const orderId = data.meta?.orderId || data.orderId;
+    if (!orderId) {
+      throw new NotFoundException('Order ID not found in webhook data');
+    }
+    console.log(
+      `Received webhook for tx_ref: ${tx_ref}, status: ${status}`,
+      body,
+    );
+
+    if (status === 'successful' || status === 'success') {
+      const order =
+        await this.paymentRepository.updateOrderStatusByInvoiceNumber(
+          orderId,
+          'PAID',
+        );
+      await this.initInvoice({ orderId: order.id }, 'PAID');
+    } else {
+      await this.paymentRepository.updateOrderStatusByInvoiceNumber(
+        orderId,
+        'FAILED',
+      );
+    }
+  }
+
+  async initInvoice(dto: InitializePaymentDto, paymentStatus: string) {
+    const invoiceNumber = this.generateInvoiceNumber();
+    const order = await this.paymentRepository.getOrderForChapa(dto.orderId);
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    // Prepare invoice payload based on order details
+    const invoicePayload = {
+      invoiceNumber,
+      shopName: 'Assosa Shop',
+      shopAddress: '123 Assosa St, Assosa, Ethiopia',
+      shopEmail: 'support@assosashop.com',
+      shopPhone: '+251-911-000-000',
+      billingDetails: {
+        name: order.customer.firstName + ' ' + order.customer.lastName,
+        email: order.customer.email,
+        phone: order.customer.phone,
+        address: order.customer.address,
+      },
+      shippingDetails: {
+        name: order.customer.firstName + ' ' + order.customer.lastName,
+        phone: order.customer.phone,
+        address: order.customer.address,
+        country: 'Ethiopia',
+      },
+      items: order.orderItems.map((item: any) => ({
+        product: item.productName,
+        quantity: item.quantity,
+        price: item.price,
+        total: item.quantity * item.price,
+      })),
+      subtotal: order.orderItems.reduce(
+        (sum: number, item: any) => sum + item.quantity * item.price,
+        0,
+      ),
+      shipping: 0,
+      total: order.orderItems.reduce(
+        (sum: number, item: any) => sum + item.quantity * item.price,
+        0,
+      ),
+      paymentMethod: order.paymentMethod,
+      transactionId: invoiceNumber,
+      footerNote:
+        'Thank you for your purchase! If you have any questions, contact us at support@assosashop.com',
+    };
+
+    const response = await axios.post(
+      `${process.env.UPLOAD_URL}/generate-invoice`,
+      invoicePayload,
+      {
+        headers: {
+          'x-upload-token': `${process.env.UPLOAD_TOKEN}`,
+        },
+      },
+    );
+
+    if (response.status !== 200) {
+      throw new NotFoundException('Failed to generate invoice PDF');
+    }
+
+    return this.paymentRepository.initializeInvoice({
+      ...dto,
+      invoiceNumber,
+      pdfUrl: response.data.url,
+      paymentStatus,
+    });
+  }
+
+  async initializeInvoice(dto: InitializePaymentDto, customerId: string) {
     const invoiceNumber = this.generateInvoiceNumber();
     const order = await this.paymentRepository.getOrder(
       dto.orderId,
@@ -62,32 +163,6 @@ export class PaymentService {
     if (!order) {
       throw new NotFoundException(
         'Order not found or does not belong to the customer',
-      );
-    }
-
-    const chapaPayload = {
-      amount: order.orderItems
-        .reduce((sum: number, item: any) => sum + item.quantity * item.price, 0)
-        .toString(),
-      currency: 'ETB',
-      email: order.customer.email,
-      first_name: order.customer.firstName,
-      last_name: order.customer.lastName,
-      tx_ref: invoiceNumber,
-      'customization[title]': 'Payment for my Order',
-      'customization[description]': 'Payment for order #' + invoiceNumber,
-    };
-
-    if (paymentMethod === 'CHAPA') {
-      await axios.post(
-        'https://api.chapa.co/v1/transaction/initialize',
-        chapaPayload,
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`,
-            'Content-Type': 'application/json',
-          },
-        },
       );
     }
 
@@ -161,8 +236,8 @@ export class PaymentService {
     return this.paymentRepository.updateInvoiceStatus(orderId, paymentStatus);
   }
 
-  async findAllInvoices(query: InvoiceQueryDto) {
-    return this.paymentRepository.findAllInvoices(query);
+  async findAllInvoices(query: InvoiceQueryDto, baseUrl?: string) {
+    return this.paymentRepository.findAllInvoices(query, baseUrl);
   }
 
   async findInvoiceById(invoiceId: string) {
@@ -173,8 +248,12 @@ export class PaymentService {
     return invoice;
   }
 
-  async findMyInvoices(customerId: string, query?: InvoiceQueryDto) {
-    return this.paymentRepository.findMyInvoices(customerId, query);
+  async findMyInvoices(
+    customerId: string,
+    query?: InvoiceQueryDto,
+    baseUrl?: string,
+  ) {
+    return this.paymentRepository.findMyInvoices(customerId, query, baseUrl);
   }
 
   private generateInvoiceNumber(): string {

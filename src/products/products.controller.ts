@@ -8,9 +8,11 @@ import {
   Delete,
   Query,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
+import { Request } from 'express';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductQueryDto } from './dto/product.dto';
@@ -47,9 +49,10 @@ export class ProductsController {
 
   @Get()
   @ApiQuery({ name: 'search', required: false })
-  @ApiQuery({ name: 'categoryId', required: false })
-  findAll(@Query() query: ProductQueryDto) {
-    return this.productsService.findAll(query);
+  findAll(@Query() query: ProductQueryDto, @Req() req: Request) {
+    // Build baseUrl for nextLink
+    const baseUrl = req.protocol + '://' + req.get('host') + req.path;
+    return this.productsService.findAll(query, baseUrl);
   }
 
   @Get(':id')

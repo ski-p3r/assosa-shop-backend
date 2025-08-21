@@ -24,6 +24,7 @@ import * as Joi from 'joi';
         UPLOAD_TOKEN: Joi.string().required(),
         UPLOAD_URL: Joi.string().uri().required(),
         CHAPA_SECRET_KEY: Joi.string().required(),
+        CHAPA_SECRET_HASH: Joi.string().required(),
       }),
     }),
     PrismaModule,

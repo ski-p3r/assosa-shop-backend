@@ -39,6 +39,14 @@ export class OrderQueryDto {
   @IsOptional()
   paymentStatus?: string;
 
+  @ApiProperty({ required: false, default: 1 })
+  @IsOptional()
+  page?: number = 1;
+
+  @ApiProperty({ required: false, default: 20 })
+  @IsOptional()
+  limit?: number = 20;
+
   @ApiProperty({ required: false })
   @IsUUID()
   @IsOptional()

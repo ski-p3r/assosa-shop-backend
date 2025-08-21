@@ -14,8 +14,16 @@ export class UpdatePaymentStatusDto {
 }
 
 export class InvoiceQueryDto {
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
   paymentStatus?: string;
+
+  @ApiProperty({ required: false, default: 1 })
+  @IsOptional()
+  page?: number = 1;
+
+  @ApiProperty({ required: false, default: 20 })
+  @IsOptional()
+  limit?: number = 20;
 }

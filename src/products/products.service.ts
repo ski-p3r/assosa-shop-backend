@@ -12,8 +12,8 @@ export class ProductsService {
     return this.repo.create(dto);
   }
 
-  async findAll(query: ProductQueryDto = {}) {
-    return this.repo.findAll(query);
+  async findAll(query: ProductQueryDto = {}, baseUrl?: string) {
+    return this.repo.findAll(query, baseUrl);
   }
 
   async findOne(id: string) {
