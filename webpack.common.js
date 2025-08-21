@@ -12,7 +12,7 @@ module.exports = {
   },
   resolve: {
     extensions: ['.ts', '.js'],
-    plugins: [new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })],
+    plugins: [new TsconfigPathsPlugin({ configFile: './tsconfig.json' })],
   },
   externals: [nodeExternals()],
   module: {
@@ -21,23 +21,14 @@ module.exports = {
         test: /\.ts$/,
         use: {
           loader: 'ts-loader',
-          options: {
-            transpileOnly: true,
-          },
+          options: { transpileOnly: true },
         },
         exclude: /node_modules/,
       },
     ],
   },
-
-  plugins: [
-    new ForkTsCheckerWebpackPlugin(),
-  ],
-
-  cache: {
-    type: 'filesystem',
-  },
-
+  plugins: [new ForkTsCheckerWebpackPlugin()],
+  cache: { type: 'filesystem' },
   node: {
     __dirname: false,
     __filename: false,

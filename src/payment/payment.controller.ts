@@ -14,7 +14,7 @@ import { RolesGuard } from '@/common/guards/roles.guard';
 import { Role } from '@/auth/dto/auth.dto';
 import { Roles } from '@/common/decorators/roles.decorator';
 import * as crypto from 'crypto';
-import { Request } from 'express';
+import type { Request } from 'express';
 
 @Controller('payment')
 export class PaymentController {
