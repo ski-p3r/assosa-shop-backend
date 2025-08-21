@@ -14,7 +14,7 @@ import { RolesGuard } from '@/common/guards/roles.guard';
 import { Role } from '@/auth/dto/auth.dto';
 import { Roles } from '@/common/decorators/roles.decorator';
 import * as crypto from 'crypto';
-import { Request } from 'express';
+import type { Request } from 'express';
 
 @Controller('payment')
 export class PaymentController {
@@ -55,7 +55,6 @@ export class PaymentController {
 
   @Post('/webhook/chapa')
   async chapaWebhook(@Req() req: any, @Body() body: any) {
-    console.log('Webhook received:', body);
     const secret = process.env.CHAPA_SECRET_HASH || '';
     const chapaSignature =
       req.headers['chapa-signature'] || req.headers['Chapa-Signature'];
@@ -63,7 +62,6 @@ export class PaymentController {
       req.headers['x-chapa-signature'] || req.headers['X-Chapa-Signature'];
     // Ensure body is defined and serializable
     const payload = body ? JSON.stringify(body) : '';
-    console.log('Webhook payload:', payload);
 
     if (!payload) {
       return { status: 400, message: 'Empty body' };
@@ -79,11 +77,6 @@ export class PaymentController {
       .update(payload)
       .digest('hex');
 
-    console.log('Computed hash for Chapa-Signature:', hashChapaSignature);
-    console.log('Computed hash for x-chapa-signature:', hashXChapaSignature);
-    console.log('Received Chapa-Signature:', chapaSignature);
-    console.log('Received x-chapa-signature:', xChapaSignature);
-
     const isChapaSignatureValid =
       chapaSignature && chapaSignature === hashChapaSignature;
     const isXChapaSignatureValid =
@@ -93,9 +86,7 @@ export class PaymentController {
       return { status: 401, message: 'Invalid signature' };
     }
 
-    console.log('Valid signature, processing webhook...');
     await this.paymentService.handleChapaWebhook(body);
-    console.log('Webhook processed successfully');
     return { status: 200 };
   }
 

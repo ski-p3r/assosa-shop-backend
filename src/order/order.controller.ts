@@ -12,7 +12,7 @@ import {
 import { OrderService } from './order.service';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { CreateOrderDto, OrderQueryDto, UpdateOrderDto } from './dto/order.dto';
-import { Request } from 'express';
+import type { Request } from 'express';
 import { RolesGuard } from '@/common/guards/roles.guard';
 import { Role } from '@/auth/dto/auth.dto';
 import { Roles } from '@/common/decorators/roles.decorator';
