@@ -28,21 +28,21 @@ export class CategoryController {
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.MASTER_ADMIN, Role.ORDER_MANAGER)
+  @Roles(Role.MASTER_ADMIN)
   async create(@Body() dto: CreateCategoryDto) {
     return this.categoryService.create(dto);
   }
 
   @Put(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.MASTER_ADMIN, Role.ORDER_MANAGER)
+  @Roles(Role.MASTER_ADMIN)
   async update(@Param('id') id: string, @Body() dto: UpdateCategoryDto) {
     return this.categoryService.update(id, dto);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.MASTER_ADMIN, Role.ORDER_MANAGER)
+  @Roles(Role.MASTER_ADMIN)
   async delete(@Param('id') id: string) {
     return this.categoryService.delete(id);
   }

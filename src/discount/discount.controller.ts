@@ -24,7 +24,7 @@ export class DiscountController {
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.MASTER_ADMIN, Role.ORDER_MANAGER)
+  @Roles(Role.MASTER_ADMIN)
   create(@Body() createDiscountDto: CreateDiscountDto) {
     return this.discountService.create(createDiscountDto);
   }

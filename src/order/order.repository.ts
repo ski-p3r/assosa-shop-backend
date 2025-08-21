@@ -18,9 +18,6 @@ export class OrderRepository {
     for (const item of cart.items) {
       if (item.variantId) {
         if (!item.variant) throw new Error('Variant not found');
-        if (item.variant.stockQuantity < item.quantity) {
-          throw new ConflictException(`Insufficient quantity for this variant`);
-        }
       }
     }
 

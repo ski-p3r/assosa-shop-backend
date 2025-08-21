@@ -29,7 +29,7 @@ export class ProductVariantController {
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.MASTER_ADMIN, Role.ORDER_MANAGER)
+  @Roles(Role.MASTER_ADMIN)
   @ApiOperation({ summary: 'Create a new product variant' })
   @ApiResponse({
     status: 201,
@@ -117,7 +117,7 @@ export class ProductVariantController {
 
   @Put(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.MASTER_ADMIN, Role.ORDER_MANAGER)
+  @Roles(Role.MASTER_ADMIN)
   @ApiOperation({ summary: 'Update a product variant' })
   @ApiResponse({
     status: 200,
@@ -137,7 +137,7 @@ export class ProductVariantController {
 
   @Put(':id/stock')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.MASTER_ADMIN, Role.ORDER_MANAGER)
+  @Roles(Role.MASTER_ADMIN)
   @ApiOperation({ summary: 'Update stock quantity for a product variant' })
   @ApiResponse({
     status: 200,
@@ -155,7 +155,7 @@ export class ProductVariantController {
 
   @Put(':id/toggle-availability')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.MASTER_ADMIN, Role.ORDER_MANAGER)
+  @Roles(Role.MASTER_ADMIN)
   @ApiOperation({ summary: 'Toggle availability of a product variant' })
   @ApiResponse({
     status: 200,
@@ -172,7 +172,7 @@ export class ProductVariantController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.MASTER_ADMIN, Role.ORDER_MANAGER)
+  @Roles(Role.MASTER_ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a product variant' })
   @ApiResponse({

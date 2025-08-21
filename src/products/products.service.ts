@@ -16,6 +16,10 @@ export class ProductsService {
     return this.repo.findAll(query, baseUrl);
   }
 
+  async findOutOfStock(query: ProductQueryDto = {}, baseUrl?: string) {
+    return this.repo.findOutOfStock(query, baseUrl);
+  }
+
   async findOne(id: string) {
     const product = await this.repo.findOne(id);
     if (!product) throw new NotFoundException('Product not found');

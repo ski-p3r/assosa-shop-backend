@@ -33,7 +33,7 @@ export class OrderController {
 
   @Post('/update/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.MASTER_ADMIN, Role.ORDER_MANAGER)
+  @Roles(Role.MASTER_ADMIN)
   async updateOrder(
     @Req() req: Request & { user: { id: string } },
     @Body() body: UpdateOrderDto,
@@ -61,7 +61,7 @@ export class OrderController {
 
   @Get('/')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.MASTER_ADMIN, Role.ORDER_MANAGER)
+  @Roles(Role.MASTER_ADMIN)
   async getAllOrders(@Query() query: OrderQueryDto, @Req() req: Request) {
     const baseUrl = req.protocol + '://' + req.get('host') + req.path;
     return this.orderService.findOrders(query, baseUrl);
@@ -69,7 +69,7 @@ export class OrderController {
 
   @Delete('/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.MASTER_ADMIN, Role.ORDER_MANAGER)
+  @Roles(Role.MASTER_ADMIN)
   async deleteOrder(@Param('id') id: string) {
     return this.orderService.deleteOrder(id);
   }
