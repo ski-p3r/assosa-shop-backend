@@ -43,6 +43,7 @@ model Category {
   id       String     @id @default(uuid())
   name     String
   slug     String     @unique // e.g., 'electronics', 'home-kitchen'
+  imageUrl String?    @map("image_url") // URL to category image
   parentId String?    @map("parent_id")
   parent   Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
   children Category[] @relation("CategoryToCategory")
