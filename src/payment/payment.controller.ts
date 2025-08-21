@@ -112,7 +112,7 @@ export class PaymentController {
 
   @Get('/all')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.MASTER_ADMIN, Role.ORDER_MANAGER)
+  @Roles(Role.MASTER_ADMIN)
   async getAllInvoices(@Query() query: InvoiceQueryDto, @Req() req: Request) {
     const baseUrl = req.protocol + '://' + req.get('host') + req.path;
     return this.paymentService.findAllInvoices(query, baseUrl);

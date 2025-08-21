@@ -28,21 +28,21 @@ export class ProductsController {
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.MASTER_ADMIN, Role.ORDER_MANAGER)
+  @Roles(Role.MASTER_ADMIN)
   create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
   }
 
   @Put(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.MASTER_ADMIN, Role.ORDER_MANAGER)
+  @Roles(Role.MASTER_ADMIN)
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
     return this.productsService.update(id, updateProductDto);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.MASTER_ADMIN, Role.ORDER_MANAGER)
+  @Roles(Role.MASTER_ADMIN)
   delete(@Param('id') id: string) {
     return this.productsService.delete(id);
   }
@@ -53,6 +53,16 @@ export class ProductsController {
     // Build baseUrl for nextLink
     const baseUrl = req.protocol + '://' + req.get('host') + req.path;
     return this.productsService.findAll(query, baseUrl);
+  }
+
+  @Get('out-of-stock')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ORDER_MANAGER)
+  @ApiQuery({ name: 'search', required: false })
+  findOutOfStock(@Query() query: ProductQueryDto, @Req() req: Request) {
+    // Build baseUrl for nextLink
+    const baseUrl = req.protocol + '://' + req.get('host') + req.path;
+    return this.productsService.findOutOfStock(query, baseUrl);
   }
 
   @Get(':id')
