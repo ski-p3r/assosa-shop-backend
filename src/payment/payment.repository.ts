@@ -40,8 +40,32 @@ export class PaymentRepository {
     });
   }
 
-  async findAllInvoices(query: InvoiceQueryDto) {
-    return this.prismaService.invoice.findMany({ where: query });
+  async findAllInvoices(query: InvoiceQueryDto = {}, baseUrl?: string) {
+    let { page = 1, limit = 20, paymentStatus } = query;
+    page = typeof page === 'string' ? parseInt(page, 10) : page;
+    limit = typeof limit === 'string' ? parseInt(limit, 10) : limit;
+    const skip = (page - 1) * limit;
+    const where: any = {
+      ...(paymentStatus ? { paymentStatus } : {}),
+    };
+    const [items, total] = await Promise.all([
+      this.prismaService.invoice.findMany({
+        where,
+        skip,
+        take: limit,
+      }),
+      this.prismaService.invoice.count({ where }),
+    ]);
+    let nextLink = null;
+    if (skip + limit < total) {
+      const params = new URLSearchParams({
+        ...(paymentStatus ? { paymentStatus } : {}),
+        page: (page + 1).toString(),
+        limit: limit.toString(),
+      });
+      nextLink = baseUrl ? `${baseUrl}?${params}` : null;
+    }
+    return { items, total, page, limit, nextLink };
   }
 
   async findInvoiceById(invoiceId: string) {
@@ -56,18 +80,45 @@ export class PaymentRepository {
     });
   }
 
-  async findMyInvoices(customerId: string, query?: InvoiceQueryDto) {
-    return this.prismaService.invoice.findMany({
-      where: { order: { customerId }, ...query },
-      include: {
-        order: {
-          include: {
-            orderItems: true,
-            deliveryAssignment: true,
+  async findMyInvoices(
+    customerId: string,
+    query: InvoiceQueryDto = {},
+    baseUrl?: string,
+  ) {
+    let { page = 1, limit = 20, paymentStatus } = query;
+    page = typeof page === 'string' ? parseInt(page, 10) : page;
+    limit = typeof limit === 'string' ? parseInt(limit, 10) : limit;
+    const skip = (page - 1) * limit;
+    const where: any = {
+      order: { customerId },
+      ...(paymentStatus ? { paymentStatus } : {}),
+    };
+    const [items, total] = await Promise.all([
+      this.prismaService.invoice.findMany({
+        where,
+        include: {
+          order: {
+            include: {
+              orderItems: true,
+              deliveryAssignment: true,
+            },
           },
         },
-      },
-    });
+        skip,
+        take: limit,
+      }),
+      this.prismaService.invoice.count({ where }),
+    ]);
+    let nextLink = null;
+    if (skip + limit < total) {
+      const params = new URLSearchParams({
+        ...(paymentStatus ? { paymentStatus } : {}),
+        page: (page + 1).toString(),
+        limit: limit.toString(),
+      });
+      nextLink = baseUrl ? `${baseUrl}?${params}` : null;
+    }
+    return { items, total, page, limit, nextLink };
   }
 
   async getOrder(orderId: string, customerId: string) {
@@ -83,6 +134,29 @@ export class PaymentRepository {
         deliveryAssignment: true,
         customer: true,
       },
+    });
+  }
+
+  async getOrderForChapa(orderId: string) {
+    return this.prismaService.order.findUniqueOrThrow({
+      where: { id: orderId },
+      include: {
+        orderItems: {
+          include: {
+            product: true,
+            variant: true,
+          },
+        },
+        deliveryAssignment: true,
+        customer: true,
+      },
+    });
+  }
+
+  async updateOrderStatusByInvoiceNumber(orderId: string, status: string) {
+    return this.prismaService.order.update({
+      where: { id: orderId },
+      data: { paymentStatus: status },
     });
   }
 

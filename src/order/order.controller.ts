@@ -49,7 +49,8 @@ export class OrderController {
     @Query() query: OrderQueryDto,
   ) {
     const userId = req.user.id;
-    return this.orderService.findOrdersByCustomerId(userId, query);
+    const baseUrl = req.protocol + '://' + req.get('host') + req.path;
+    return this.orderService.findOrdersByCustomerId(userId, query, baseUrl);
   }
 
   @Get('/:id')
@@ -61,8 +62,9 @@ export class OrderController {
   @Get('/')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.MASTER_ADMIN, Role.ORDER_MANAGER)
-  async getAllOrders(@Query() query: OrderQueryDto) {
-    return this.orderService.findOrders(query);
+  async getAllOrders(@Query() query: OrderQueryDto, @Req() req: Request) {
+    const baseUrl = req.protocol + '://' + req.get('host') + req.path;
+    return this.orderService.findOrders(query, baseUrl);
   }
 
   @Delete('/:id')

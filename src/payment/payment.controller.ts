@@ -13,6 +13,8 @@ import { InitializePaymentDto, InvoiceQueryDto } from './dto/payment.dto';
 import { RolesGuard } from '@/common/guards/roles.guard';
 import { Role } from '@/auth/dto/auth.dto';
 import { Roles } from '@/common/decorators/roles.decorator';
+import * as crypto from 'crypto';
+import { Request } from 'express';
 
 @Controller('payment')
 export class PaymentController {
@@ -35,11 +37,7 @@ export class PaymentController {
     @Body() initializePaymentDto: InitializePaymentDto,
   ) {
     const { id } = req.user;
-    return this.paymentService.initializeInvoice(
-      initializePaymentDto,
-      id,
-      'ON_DELIVERY',
-    );
+    return this.paymentService.initializeInvoice(initializePaymentDto, id);
   }
 
   @Post('/update-status')
@@ -55,6 +53,52 @@ export class PaymentController {
     );
   }
 
+  @Post('/webhook/chapa')
+  async chapaWebhook(@Req() req: any, @Body() body: any) {
+    console.log('Webhook received:', body);
+    const secret = process.env.CHAPA_SECRET_HASH || '';
+    const chapaSignature =
+      req.headers['chapa-signature'] || req.headers['Chapa-Signature'];
+    const xChapaSignature =
+      req.headers['x-chapa-signature'] || req.headers['X-Chapa-Signature'];
+    // Ensure body is defined and serializable
+    const payload = body ? JSON.stringify(body) : '';
+    console.log('Webhook payload:', payload);
+
+    if (!payload) {
+      return { status: 400, message: 'Empty body' };
+    }
+
+    // Compute hashes
+    const hashChapaSignature = crypto
+      .createHmac('sha256', secret)
+      .update(secret)
+      .digest('hex');
+    const hashXChapaSignature = crypto
+      .createHmac('sha256', secret)
+      .update(payload)
+      .digest('hex');
+
+    console.log('Computed hash for Chapa-Signature:', hashChapaSignature);
+    console.log('Computed hash for x-chapa-signature:', hashXChapaSignature);
+    console.log('Received Chapa-Signature:', chapaSignature);
+    console.log('Received x-chapa-signature:', xChapaSignature);
+
+    const isChapaSignatureValid =
+      chapaSignature && chapaSignature === hashChapaSignature;
+    const isXChapaSignatureValid =
+      xChapaSignature && xChapaSignature === hashXChapaSignature;
+
+    if (!isChapaSignatureValid && !isXChapaSignatureValid) {
+      return { status: 401, message: 'Invalid signature' };
+    }
+
+    console.log('Valid signature, processing webhook...');
+    await this.paymentService.handleChapaWebhook(body);
+    console.log('Webhook processed successfully');
+    return { status: 200 };
+  }
+
   @Get('/my')
   @UseGuards(JwtAuthGuard)
   async getMyInvoices(
@@ -62,13 +106,15 @@ export class PaymentController {
     @Query() query: InvoiceQueryDto,
   ) {
     const { id } = req.user;
-    return this.paymentService.findMyInvoices(id, query);
+    const baseUrl = req.protocol + '://' + req.get('host') + req.path;
+    return this.paymentService.findMyInvoices(id, query, baseUrl);
   }
 
   @Get('/all')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.MASTER_ADMIN, Role.ORDER_MANAGER)
-  async getAllInvoices(@Query() query: InvoiceQueryDto) {
-    return this.paymentService.findAllInvoices(query);
+  async getAllInvoices(@Query() query: InvoiceQueryDto, @Req() req: Request) {
+    const baseUrl = req.protocol + '://' + req.get('host') + req.path;
+    return this.paymentService.findAllInvoices(query, baseUrl);
   }
 }

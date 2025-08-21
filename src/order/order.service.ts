@@ -18,12 +18,20 @@ export class OrderService {
     return this.orderRepository.findOrderById(id);
   }
 
-  async findOrdersByCustomerId(customerId: string, query?: OrderQueryDto) {
-    return this.orderRepository.findOrdersByCustomerId(customerId, query);
+  async findOrdersByCustomerId(
+    customerId: string,
+    query?: OrderQueryDto,
+    baseUrl?: string,
+  ) {
+    return this.orderRepository.findOrdersByCustomerId(
+      customerId,
+      query,
+      baseUrl,
+    );
   }
 
-  async findOrders(query: OrderQueryDto) {
-    return this.orderRepository.findOrders(query);
+  async findOrders(query: OrderQueryDto, baseUrl?: string) {
+    return this.orderRepository.findOrders(query, baseUrl);
   }
 
   async deleteOrder(id: string) {

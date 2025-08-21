@@ -88,33 +88,99 @@ export class OrderRepository {
     });
   }
 
-  async findOrdersByCustomerId(customerId: string, query?: OrderQueryDto) {
-    return this.prismaService.order.findMany({
-      where: {
-        customerId,
-        ...query,
-      },
-      include: {
-        orderItems: true,
-        invoice: true,
-        deliveryAssignment: true,
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+  async findOrdersByCustomerId(
+    customerId: string,
+    query: OrderQueryDto = {},
+    baseUrl?: string,
+  ) {
+    let { page = 1, limit = 20, status, paymentStatus, search } = query;
+    page = typeof page === 'string' ? parseInt(page, 10) : page;
+    limit = typeof limit === 'string' ? parseInt(limit, 10) : limit;
+    const skip = (page - 1) * limit;
+    const where: any = {
+      customerId,
+      ...(status ? { status } : {}),
+      ...(paymentStatus ? { paymentStatus } : {}),
+      ...(search
+        ? {
+            OR: [
+              { id: { contains: search, mode: 'insensitive' } },
+              { status: { contains: search, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
+    };
+    const [items, total] = await Promise.all([
+      this.prismaService.order.findMany({
+        where,
+        include: {
+          orderItems: true,
+          invoice: true,
+          deliveryAssignment: true,
+        },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prismaService.order.count({ where }),
+    ]);
+    let nextLink = null;
+    if (skip + limit < total) {
+      const params = new URLSearchParams({
+        ...(search ? { search } : {}),
+        ...(status ? { status } : {}),
+        ...(paymentStatus ? { paymentStatus } : {}),
+        page: (page + 1).toString(),
+        limit: limit.toString(),
+      });
+      nextLink = baseUrl ? `${baseUrl}?${params}` : null;
+    }
+    return { items, total, page, limit, nextLink };
   }
 
-  async findOrders(query: OrderQueryDto) {
-    return this.prismaService.order.findMany({
-      where: {
-        ...query,
-      },
-      include: {
-        orderItems: true,
-        invoice: true,
-        deliveryAssignment: true,
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+  async findOrders(query: OrderQueryDto = {}, baseUrl?: string) {
+    let { page = 1, limit = 20, status, paymentStatus, search } = query;
+    page = typeof page === 'string' ? parseInt(page, 10) : page;
+    limit = typeof limit === 'string' ? parseInt(limit, 10) : limit;
+    const skip = (page - 1) * limit;
+    const where: any = {
+      ...(status ? { status } : {}),
+      ...(paymentStatus ? { paymentStatus } : {}),
+      ...(search
+        ? {
+            OR: [
+              { id: { contains: search, mode: 'insensitive' } },
+              { status: { contains: search, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
+    };
+    const [items, total] = await Promise.all([
+      this.prismaService.order.findMany({
+        where,
+        include: {
+          orderItems: true,
+          invoice: true,
+          deliveryAssignment: true,
+        },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prismaService.order.count({ where }),
+    ]);
+    let nextLink = null;
+    if (skip + limit < total) {
+      const params = new URLSearchParams({
+        ...(search ? { search } : {}),
+        ...(status ? { status } : {}),
+        ...(paymentStatus ? { paymentStatus } : {}),
+        page: (page + 1).toString(),
+        limit: limit.toString(),
+      });
+      nextLink = baseUrl ? `${baseUrl}?${params}` : null;
+    }
+    return { items, total, page, limit, nextLink };
   }
 
   async deleteOrder(id: string) {
