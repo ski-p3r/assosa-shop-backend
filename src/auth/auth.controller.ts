@@ -1,4 +1,12 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiTags, ApiOkResponse, ApiBadRequestResponse } from '@nestjs/swagger';
 import {
   RegisterDto,
@@ -8,8 +16,11 @@ import {
   AuthResponseDto,
   ForgotPasswordResponseDto,
   ResetPasswordResponseDto,
+  UpdateProfileDto,
+  ChangePasswordDto,
 } from './dto/auth.dto';
 import { AuthService } from './auth.service';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -58,5 +69,36 @@ export class AuthController {
     @Body() dto: ResetPasswordDto,
   ): Promise<ResetPasswordResponseDto> {
     return this.authService.resetPassword(dto);
+  }
+
+  @Get('profile')
+  @UseGuards(JwtAuthGuard)
+  async getProfile(@Req() req: Request & { user: { id: string } }) {
+    const { id } = req.user;
+    return this.authService.getProfile(id);
+  }
+
+  @Post('change-password')
+  @UseGuards(JwtAuthGuard)
+  async changePassword(
+    @Req() req: Request & { user: { id: string } },
+    @Body() body: ChangePasswordDto,
+  ) {
+    const { id } = req.user;
+    return this.authService.changePassword(
+      id,
+      body.oldPassword,
+      body.newPassword,
+    );
+  }
+
+  @Put('update-profile')
+  @UseGuards(JwtAuthGuard)
+  async updateProfile(
+    @Req() req: Request & { user: { id: string } },
+    @Body() body: UpdateProfileDto,
+  ) {
+    const { id } = req.user;
+    return this.authService.updateProfile(id, body);
   }
 }

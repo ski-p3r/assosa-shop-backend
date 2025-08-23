@@ -78,7 +78,12 @@ export class OrderRepository {
     return this.prismaService.order.findUnique({
       where: { id },
       include: {
-        orderItems: true,
+        orderItems: {
+          include: {
+            product: true,
+            variant: true,
+          },
+        },
         invoice: true,
         deliveryAssignment: true,
       },

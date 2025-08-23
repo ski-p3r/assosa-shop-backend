@@ -118,4 +118,31 @@ export class AuthService {
     const passwordHash = await hashData(dto.newPassword);
     return this.authRepository.updatePassword(user.id, passwordHash);
   }
+
+  async getProfile(userId: string) {
+    const user = await this.authRepository.findById(userId);
+    if (!user) throw new UnauthorizedException('User not found');
+    return user;
+  }
+
+  async updateProfile(
+    userId: string,
+    dto: Partial<Omit<RegisterDto, 'password' | 'phone' | 'email'>>,
+  ): Promise<AuthResponseDto> {
+    const user = await this.authRepository.findById(userId);
+    if (!user) throw new UnauthorizedException('User not found');
+    const userRes = await this.authRepository.updateProfile(userId, dto);
+    const tokens = this.getTokens(userRes.user.id, userRes.user.phone);
+    return { ...userRes, ...tokens };
+  }
+
+  async changePassword(
+    userId: string,
+    oldPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    const user = await this.authRepository.findById(userId);
+    if (!user) throw new UnauthorizedException('User not found');
+    return this.authRepository.changePassword(userId, oldPassword, newPassword);
+  }
 }

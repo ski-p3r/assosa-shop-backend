@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
   RegisterDto,
@@ -6,6 +6,7 @@ import {
   AuthResponseDto,
   ResetPasswordResponseDto,
 } from '../dto/auth.dto';
+import { hashData, verifyHash } from '@/common/utils/hash';
 
 @Injectable()
 export class AuthRepository {
@@ -78,5 +79,39 @@ export class AuthRepository {
       data: { passwordHash },
     });
     return { success: true, message: 'Password updated successfully' };
+  }
+
+  async findById(id: string) {
+    return this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        email: true,
+        profileImage: true,
+        address: true,
+        language: true,
+        role: true,
+        status: true,
+      },
+    });
+  }
+
+  async changePassword(
+    userId: string,
+    oldPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new UnauthorizedException('User not found');
+    const isMatch = await verifyHash(user.passwordHash, oldPassword);
+    if (!isMatch) throw new UnauthorizedException('Old password is incorrect');
+    const passwordHash = await hashData(newPassword);
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash },
+    });
   }
 }
