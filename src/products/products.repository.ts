@@ -21,7 +21,7 @@ export class ProductsRepository {
 
   async update(id: string, dto: UpdateProductDto) {
     return this.prisma.product.update({
-      where: { id  },
+      where: { id   },
       data: {
         ...dto,
         ...(dto.name ? { slug: slugify(dto.name) } : {}),
