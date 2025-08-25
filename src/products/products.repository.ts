@@ -39,7 +39,19 @@ export class ProductsRepository {
       include: {
         variants: true,
         // discounts: true,
-        reviews: true,
+        reviews: {
+          include: {
+            customer: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                profileImage: true,
+              },
+            },
+          },
+        },
       },
     });
   }
@@ -94,16 +106,26 @@ export class ProductsRepository {
       this.prisma.product.count({ where }),
     ]);
 
+    // Calculate average rating and remove reviews from response
+    const itemsWithRating = items.map((product) => {
+      const ratings = product.reviews?.map((r) => r.rating) || [];
+      const avgRating = ratings.length
+        ? ratings.reduce((a, b) => a + b, 0) / ratings.length
+        : 0;
+      // Remove reviews, add rating
+      const { reviews, ...rest } = product;
+      return {
+        ...rest,
+        rating: avgRating,
+      };
+    });
+
     // Filter by rating if needed
-    let filteredItems = items;
+    let filteredItems = itemsWithRating;
     if (minRating !== undefined || maxRating !== undefined) {
-      filteredItems = items.filter((product) => {
-        const ratings = product.reviews?.map((r) => r.rating) || [];
-        const avgRating = ratings.length
-          ? ratings.reduce((a, b) => a + b, 0) / ratings.length
-          : 0;
-        if (minRating !== undefined && avgRating < minRating) return false;
-        if (maxRating !== undefined && avgRating > maxRating) return false;
+      filteredItems = itemsWithRating.filter((product) => {
+        if (minRating !== undefined && product.rating < minRating) return false;
+        if (maxRating !== undefined && product.rating > maxRating) return false;
         return true;
       });
     }

@@ -25,4 +25,8 @@ export class ReviewService {
   async deleteReview(id: string, userId: string) {
     return this.reviewRepository.deleteReview(id, userId);
   }
+
+  async canIReviewProduct(customerId: string, productId: string) {
+    return this.reviewRepository.canIReviewProduct(customerId, productId);
+  }
 }
