@@ -7,8 +7,16 @@ import { QueryPromotionDto } from './dto/query-promotion.dto';
 export class PromotionRepository {
   constructor(private readonly prisma: PrismaService) {}
   async create(dto: CreatePromotionDto) {
+    // Map dto to PromotionCreateInput, ensuring all required fields are present
+    const { title, description, type, value, ...rest } = dto as any;
     return this.prisma.promotion.create({
-      data: dto,
+      data: {
+        title,
+        description,
+        type,
+        value,
+        ...rest,
+      },
     });
   }
   async update(id: string, dto: CreatePromotionDto) {
@@ -24,14 +32,22 @@ export class PromotionRepository {
     const { search } = query;
 
     return this.prisma.promotion.findMany({
-      where: search
-        ? {
-            title: {
-              contains: search,
-              mode: 'insensitive',
-            },
-          }
-        : {},
+      where: {
+        ...(search
+          ? {
+              title: {
+                contains: search,
+                mode: 'insensitive',
+              },
+            }
+          : {}),
+        ...(query.active
+          ? {
+              startDay: { lte: Date.now() },
+              endDay: { gte: Date.now() },
+            }
+          : {}),
+      },
     });
   }
 }
