@@ -39,7 +39,19 @@ export class ProductsRepository {
       include: {
         variants: true,
         // discounts: true,
-        reviews: true,
+        reviews: {
+          include: {
+            customer: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                profileImage: true,
+              },
+            },
+          },
+        },
       },
     });
   }

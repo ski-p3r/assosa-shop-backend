@@ -40,6 +40,16 @@ export class ReviewController {
     return this.reviewService.updateReview(id, userId, updateReviewDto);
   }
 
+  @Get('/:productId/can-review')
+  @UseGuards(JwtAuthGuard)
+  async canIReviewProduct(
+    @Param('productId') productId: string,
+    @Req() req: Request & { user: { id: string } },
+  ) {
+    const customerId = req.user.id;
+    return this.reviewService.canIReviewProduct(customerId, productId);
+  }
+
   @Get('/:productId')
   @UseGuards(JwtAuthGuard)
   async findReviewsByProductId(@Param('productId') productId: string) {

@@ -5,6 +5,7 @@ import {
   UpdateProfileDto,
   AuthResponseDto,
   ResetPasswordResponseDto,
+  RegisterAdminDto,
 } from '../dto/auth.dto';
 import { hashData, verifyHash } from '@/common/utils/hash';
 
@@ -25,6 +26,35 @@ export class AuthRepository {
     // You should generate tokens in the service, but for type safety, return user info here
     return {
       accessToken: '', // to be set in service
+      user: {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phone: user.phone,
+        email: user.email,
+        profileImage: user.profileImage ?? undefined,
+        address: user.address ?? undefined,
+        language: user.language,
+        role: user.role,
+        status: user.status,
+      },
+    };
+  }
+
+  async createAdmin(
+    data: RegisterAdminDto & { passwordHash: string },
+  ): Promise<AuthResponseDto> {
+    const { passwordHash, ...rest } = data;
+    const user = await this.prisma.user.create({
+      data: {
+        ...rest,
+        passwordHash,
+      },
+    });
+    // You should generate tokens in the service, but for type safety, return user info here
+    return {
+      accessToken: '',
+      refreshToken: '',
       user: {
         id: user.id,
         firstName: user.firstName,

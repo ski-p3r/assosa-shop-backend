@@ -18,14 +18,25 @@ import {
   ResetPasswordResponseDto,
   UpdateProfileDto,
   ChangePasswordDto,
+  Role,
+  RegisterAdminDto,
 } from './dto/auth.dto';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
+import { RolesGuard } from '@/common/guards/roles.guard';
+import { Roles } from '@/common/decorators/roles.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Post('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.MASTER_ADMIN)
+  async createAdmin(@Body() dto: RegisterAdminDto): Promise<AuthResponseDto> {
+    return this.authService.createAdmin(dto);
+  }
 
   @Post('register')
   @ApiOkResponse({ description: 'User registered', type: AuthResponseDto })

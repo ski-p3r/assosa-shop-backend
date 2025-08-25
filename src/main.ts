@@ -11,6 +11,9 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
 
+  // Enable CORS for all origins
+  app.enableCors({ origin: true });
+
   app.setGlobalPrefix('/api/v1');
 
   const config = new DocumentBuilder()

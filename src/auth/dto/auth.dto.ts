@@ -44,6 +44,38 @@ export class RegisterDto {
   @IsString()
   @IsOptional()
   language?: string;
+}
+
+export class RegisterAdminDto {
+  @ApiProperty()
+  @IsString()
+  firstName: string;
+
+  @ApiProperty()
+  @IsString()
+  lastName: string;
+
+  @ApiProperty()
+  @IsPhoneNumber('ET')
+  phone: string;
+
+  @ApiProperty()
+  @IsEmail()
+  email: string;
+
+  @ApiProperty()
+  @IsString()
+  @MinLength(6)
+  password: string;
+
+  @ApiProperty()
+  @IsString()
+  address?: string;
+
+  @ApiProperty({ required: false, default: 'English' })
+  @IsString()
+  @IsOptional()
+  language?: string;
 
   @ApiProperty({ enum: Role, default: Role.CUSTOMER })
   @IsEnum(Role)

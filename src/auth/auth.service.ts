@@ -12,6 +12,7 @@ import {
   AuthResponseDto,
   ForgotPasswordResponseDto,
   ResetPasswordResponseDto,
+  RegisterAdminDto,
 } from './dto/auth.dto';
 import { hashData, verifyHash } from '@/common/utils/hash';
 import { JwtService } from '@nestjs/jwt';
@@ -36,6 +37,21 @@ export class AuthService {
       expiresIn: '60d', // 60 days
     });
     return { accessToken, refreshToken };
+  }
+
+  async createAdmin(dto: RegisterAdminDto): Promise<AuthResponseDto> {
+    const existing = await this.authRepository.findByPhone(dto.phone);
+    if (existing) throw new BadRequestException('Phone already registered');
+    const passwordHash = await hashData(dto.password);
+    // Remove password from dto before passing
+    const { password, ...rest } = dto;
+    // Fix: add type assertion to satisfy RegisterDto & { passwordHash: string }
+    const userRes = await this.authRepository.createUser({
+      ...(rest as Omit<RegisterDto, 'password'>),
+      passwordHash,
+    } as RegisterDto & { passwordHash: string });
+    const tokens = this.getTokens(userRes.user.id, userRes.user.phone);
+    return { ...userRes, ...tokens };
   }
 
   async register(dto: RegisterDto): Promise<AuthResponseDto> {
@@ -105,7 +121,7 @@ export class AuthService {
   ): Promise<ForgotPasswordResponseDto> {
     const user = await this.authRepository.findByPhone(dto.phone);
     if (!user) throw new BadRequestException('User not found');
-    // Here you would send OTP or reset link
+
     return { success: true, message: 'OTP sent to phone' };
   }
 
