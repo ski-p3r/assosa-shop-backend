@@ -71,6 +71,12 @@ export class ProductsRepository {
     // Ensure page and limit are numbers (not strings)
     page = typeof page === 'string' ? parseInt(page, 10) : page;
     limit = typeof limit === 'string' ? parseInt(limit, 10) : limit;
+    minPrice = typeof minPrice === 'string' ? parseFloat(minPrice) : minPrice;
+    maxPrice = typeof maxPrice === 'string' ? parseFloat(maxPrice) : maxPrice;
+    minRating =
+      typeof minRating === 'string' ? parseFloat(minRating) : minRating;
+    maxRating =
+      typeof maxRating === 'string' ? parseFloat(maxRating) : maxRating;
 
     // Build where clause
     const where: any = {
@@ -178,6 +184,12 @@ export class ProductsRepository {
     // Ensure page and limit are numbers (not strings)
     page = typeof page === 'string' ? parseInt(page, 10) : page;
     limit = typeof limit === 'string' ? parseInt(limit, 10) : limit;
+    minPrice = typeof minPrice === 'string' ? parseFloat(minPrice) : minPrice;
+    maxPrice = typeof maxPrice === 'string' ? parseFloat(maxPrice) : maxPrice;
+    minRating =
+      typeof minRating === 'string' ? parseFloat(minRating) : minRating;
+    maxRating =
+      typeof maxRating === 'string' ? parseFloat(maxRating) : maxRating;
 
     // Build where clause for products
     const where: any = {

@@ -4,7 +4,7 @@ import { IsNumber, IsString, Max, Min } from 'class-validator';
 export class ReviewDto {
   @ApiProperty()
   @IsString()
-  content: string;
+  reviewText: string;
 
   @ApiProperty({ minimum: 0, maximum: 5 })
   @IsNumber()

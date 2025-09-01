@@ -6,6 +6,8 @@ import {
   MinLength,
   IsEnum,
   IsPhoneNumber,
+  IsUrl,
+  Matches,
 } from 'class-validator';
 
 export enum Role {
@@ -44,6 +46,11 @@ export class RegisterDto {
   @IsString()
   @IsOptional()
   language?: string;
+
+  @ApiProperty({ required: false })
+  @IsUrl()
+  @IsOptional()
+  profileImage?: string;
 }
 
 export class RegisterAdminDto {
@@ -101,7 +108,10 @@ export class ForgotPasswordDto {
 
 export class ResetPasswordDto {
   @ApiProperty()
-  @IsPhoneNumber('ET')
+  @IsString()
+  @Matches(/^(\+251|0)?9\d{8}$/, {
+    message: 'Phone must be a valid Ethiopian number',
+  })
   phone: string;
 
   @ApiProperty()

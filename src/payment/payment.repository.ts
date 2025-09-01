@@ -27,6 +27,13 @@ export class PaymentRepository {
     });
   }
 
+  async findInvoiceByNumber(invoiceNumber: string) {
+    return this.prismaService.invoice.findUnique({
+      where: { invoiceNumber },
+      include: { order: { include: { orderItems: true, customer: true } } },
+    });
+  }
+
   async findInvoiceByOrderId(orderId: string) {
     return this.prismaService.invoice.findUnique({
       where: { orderId },

@@ -49,7 +49,57 @@ export class PaymentService {
     );
 
     // ✅ Return only the relevant part (avoids circular structure)
-    return response.data;
+    return {
+      paymentUrl: response.data.data.checkout_url,
+      invoiceNumber,
+    };
+  }
+
+  async reInitializeChapaPayment(orderId: string) {
+    const order = await this.paymentRepository.getOrderForChapa(orderId);
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+    const invoiceNumber = this.generateInvoiceNumber();
+    const chapaPayload = {
+      amount: order.orderItems
+        .reduce((sum: number, item: any) => sum + item.quantity * item.price, 0)
+        .toString(),
+      currency: 'ETB',
+      first_name: order.customer.firstName,
+      last_name: order.customer.lastName,
+      tx_ref: invoiceNumber,
+      'customization[title]': 'Order Payment',
+      'customization[description]':
+        'Payment for order ' + invoiceNumber.replace(/[^a-zA-Z0-9 ]/g, ''),
+    };
+
+    const response = await axios.post(
+      'https://api.chapa.co/v1/transaction/initialize',
+      chapaPayload,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`,
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+
+    // ✅ Return only the relevant part (avoids circular structure)
+    return {
+      paymentUrl: response.data.data.checkout_url,
+      invoiceNumber,
+    };
+  }
+
+  async verifyChapaPayment(invoiceNumber: string) {
+    const data = await this.paymentRepository.getOrderForChapa(invoiceNumber);
+    if (!data) {
+      throw new NotFoundException('Order not found');
+    }
+    console.log(data.paymentStatus);
+
+    return { status: data.paymentStatus };
   }
 
   async handleChapaWebhook(body: any) {

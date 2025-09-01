@@ -17,17 +17,22 @@ import {
 import { hashData, verifyHash } from '@/common/utils/hash';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { OtpRepository } from './repository/otp.repository';
+import { generateOtpCode } from '@/common/utils/generator/otp.generator';
+import { OtpService } from './otp/services/otp.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly authRepository: AuthRepository,
+    private readonly otpRepository: OtpRepository,
+    private readonly otpService: OtpService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
 
-  private getTokens(userId: string, phone: string) {
-    const payload = { sub: userId, phone };
+  private getTokens(userId: string) {
+    const payload = { sub: userId };
     const accessToken = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_ACCESS_SECRET'),
       expiresIn: '30d', // 30 days
@@ -50,7 +55,7 @@ export class AuthService {
       ...(rest as Omit<RegisterDto, 'password'>),
       passwordHash,
     } as RegisterDto & { passwordHash: string });
-    const tokens = this.getTokens(userRes.user.id, userRes.user.phone);
+    const tokens = this.getTokens(userRes.user.id);
     return { ...userRes, ...tokens };
   }
 
@@ -65,7 +70,7 @@ export class AuthService {
       ...(rest as Omit<RegisterDto, 'password'>),
       passwordHash,
     } as RegisterDto & { passwordHash: string });
-    const tokens = this.getTokens(userRes.user.id, userRes.user.phone);
+    const tokens = this.getTokens(userRes.user.id);
     return { ...userRes, ...tokens };
   }
 
@@ -74,7 +79,7 @@ export class AuthService {
     if (!user) throw new UnauthorizedException('Invalid credentials');
     const valid = await verifyHash(user.passwordHash, dto.password);
     if (!valid) throw new UnauthorizedException('Invalid credentials');
-    const tokens = this.getTokens(user.id, user.phone);
+    const tokens = this.getTokens(user.id);
     return {
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
@@ -84,8 +89,8 @@ export class AuthService {
         lastName: user.lastName,
         phone: user.phone,
         email: user.email,
-        profileImage: user.profileImage ?? undefined,
-        address: user.address ?? undefined,
+        profileImage: user.profileImage ?? '',
+        address: user.address ?? '',
         language: user.language,
         role: user.role,
         status: user.status,
@@ -93,11 +98,11 @@ export class AuthService {
     };
   }
 
-  async refreshTokens(userId: string, phone: string): Promise<AuthResponseDto> {
-    const user = await this.authRepository.findByPhone(phone);
+  async refreshTokens(userId: string): Promise<AuthResponseDto> {
+    const user = await this.authRepository.findById(userId);
     if (!user || user.id !== userId)
       throw new UnauthorizedException('Invalid refresh token');
-    const tokens = this.getTokens(user.id, user.phone);
+    const tokens = this.getTokens(user.id);
     return {
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
@@ -121,16 +126,19 @@ export class AuthService {
   ): Promise<ForgotPasswordResponseDto> {
     const user = await this.authRepository.findByPhone(dto.phone);
     if (!user) throw new BadRequestException('User not found');
+    await this.otpService.sendOtp({ phone: dto.phone });
 
     return { success: true, message: 'OTP sent to phone' };
   }
 
-  async resetPassword(
-    dto: ResetPasswordDto,
-  ): Promise<ResetPasswordResponseDto> {
+  async resetPassword(dto: ResetPasswordDto) {
     const user = await this.authRepository.findByPhone(dto.phone);
     if (!user) throw new BadRequestException('User not found');
-    // Here you would verify OTP
+    const isValid = await this.otpService.checkOtp({
+      phone: dto.phone,
+      code: dto.otp,
+    });
+    if (!isValid) throw new BadRequestException('Invalid OTP');
     const passwordHash = await hashData(dto.newPassword);
     return this.authRepository.updatePassword(user.id, passwordHash);
   }
@@ -148,7 +156,7 @@ export class AuthService {
     const user = await this.authRepository.findById(userId);
     if (!user) throw new UnauthorizedException('User not found');
     const userRes = await this.authRepository.updateProfile(userId, dto);
-    const tokens = this.getTokens(userRes.user.id, userRes.user.phone);
+    const tokens = this.getTokens(userRes.user.id);
     return { ...userRes, ...tokens };
   }
 
