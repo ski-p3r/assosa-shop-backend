@@ -55,10 +55,11 @@ export class AuthController {
   @Post('refresh')
   @ApiOkResponse({ description: 'Tokens refreshed', type: AuthResponseDto })
   @ApiBadRequestResponse({ description: 'Invalid refresh token' })
+  @UseGuards(JwtAuthGuard)
   async refresh(
-    @Body() body: { userId: string; phone: string },
+    @Req() req: Request & { user: { id: string } },
   ): Promise<AuthResponseDto> {
-    return this.authService.refreshTokens(body.userId, body.phone);
+    return this.authService.refreshTokens(req.user.id);
   }
 
   @Post('forgot-password')

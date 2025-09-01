@@ -2,24 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { CreatePromotionDto } from './dto/create-promotion.dto';
 import { PrismaService } from '@/prisma/prisma.service';
 import { QueryPromotionDto } from './dto/query-promotion.dto';
+import { UpdatePromotionDto } from './dto/update-promotion.dto';
 
 @Injectable()
 export class PromotionRepository {
   constructor(private readonly prisma: PrismaService) {}
   async create(dto: CreatePromotionDto) {
-    // Map dto to PromotionCreateInput, ensuring all required fields are present
-    const { title, description, type, value, ...rest } = dto as any;
-    return this.prisma.promotion.create({
-      data: {
-        title,
-        description,
-        type,
-        value,
-        ...rest,
-      },
-    });
+    return this.prisma.promotion.create({ data: dto });
   }
-  async update(id: string, dto: CreatePromotionDto) {
+  async update(id: string, dto: UpdatePromotionDto) {
     return this.prisma.promotion.update({ where: { id }, data: dto });
   }
   async findOne(id: string) {
@@ -43,8 +34,8 @@ export class PromotionRepository {
           : {}),
         ...(query.active
           ? {
-              startDay: { lte: Date.now() },
-              endDay: { gte: Date.now() },
+              startDate: { lte: new Date() },
+              endDate: { gte: new Date() },
             }
           : {}),
       },

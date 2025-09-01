@@ -12,6 +12,14 @@ export class OtpRepository {
     });
   }
 
+  async upsert(iOtpGet: IOtpGet, iOtpSet: IOtpSet): Promise<IOtp> {
+    return await this.prismaService.oTP.upsert({
+      where: iOtpGet,
+      update: iOtpSet,
+      create: { ...iOtpGet, ...iOtpSet },
+    });
+  }
+
   async getUnique(iOtpGet: IOtpGet): Promise<IOtp | null> {
     return await this.prismaService.oTP.findUnique({
       where: iOtpGet,

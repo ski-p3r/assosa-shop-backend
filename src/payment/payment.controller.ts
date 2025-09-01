@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Query,
   Req,
@@ -51,6 +52,24 @@ export class PaymentController {
       updatePaymentStatusDto.orderId,
       updatePaymentStatusDto.paymentStatus,
     );
+  }
+
+  @Get('/verify/chapa/:invoiceNumber')
+  @UseGuards(JwtAuthGuard)
+  async verifyChapaPayment(
+    @Req() req: Request & { user: { id: string } },
+    @Param('invoiceNumber') invoiceNumber: string,
+  ) {
+    return this.paymentService.verifyChapaPayment(invoiceNumber);
+  }
+
+  @Get('/reinitialize/chapa/:invoiceNumber')
+  @UseGuards(JwtAuthGuard)
+  async reinitializeChapaPayment(
+    @Req() req: Request & { user: { id: string } },
+    @Param('invoiceNumber') invoiceNumber: string,
+  ) {
+    return this.paymentService.reInitializeChapaPayment(invoiceNumber);
   }
 
   @Post('/webhook/chapa')

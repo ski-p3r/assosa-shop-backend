@@ -25,9 +25,9 @@ export class PromotionService {
 
   async update(id: string, updatePromotionDto: UpdatePromotionDto) {
     await this.findOne(id);
-    const validDto: CreatePromotionDto = {
+    const validDto: UpdatePromotionDto = {
       ...updatePromotionDto,
-      title: updatePromotionDto.title || '',
+      title: updatePromotionDto.title ?? '',
     };
     return this.promotionRepository.update(id, validDto);
   }
