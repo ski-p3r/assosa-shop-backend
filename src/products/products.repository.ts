@@ -119,7 +119,7 @@ export class ProductsRepository {
 
     // Calculate average rating and remove reviews from response
     const itemsWithRating = items
-      .filter((product) => product.variants && product.variants.length > 0) // Only products with variants
+      // .filter((product) => product.variants && product.variants.length > 0) // Only products with variants
       .map((product) => {
         const ratings = product.reviews?.map((r) => r.rating) || [];
         const avgRating = ratings.length
