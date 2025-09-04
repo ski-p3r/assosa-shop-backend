@@ -117,7 +117,7 @@ export class ProductVariantController {
 
   @Put(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.MASTER_ADMIN)
+  @Roles(Role.MASTER_ADMIN, Role.ORDER_MANAGER)
   @ApiOperation({ summary: 'Update a product variant' })
   @ApiResponse({
     status: 200,

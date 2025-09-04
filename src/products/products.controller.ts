@@ -57,7 +57,7 @@ export class ProductsController {
 
   @Get('out-of-stock')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ORDER_MANAGER)
+  @Roles(Role.ORDER_MANAGER, Role.MASTER_ADMIN)
   @ApiQuery({ name: 'search', required: false })
   findOutOfStock(@Query() query: ProductQueryDto, @Req() req: Request) {
     // Build baseUrl for nextLink

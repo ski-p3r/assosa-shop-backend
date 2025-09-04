@@ -30,6 +30,9 @@ export class ProductsRepository {
   }
 
   async delete(id: string) {
+    await this.prisma.productVariant.deleteMany({
+      where: { productId: id },
+    });
     return this.prisma.product.delete({ where: { id } });
   }
 
@@ -113,18 +116,20 @@ export class ProductsRepository {
     ]);
 
     // Calculate average rating and remove reviews from response
-    const itemsWithRating = items.map((product) => {
-      const ratings = product.reviews?.map((r) => r.rating) || [];
-      const avgRating = ratings.length
-        ? ratings.reduce((a, b) => a + b, 0) / ratings.length
-        : 0;
-      // Remove reviews, add rating
-      const { reviews, ...rest } = product;
-      return {
-        ...rest,
-        rating: avgRating,
-      };
-    });
+    const itemsWithRating = items
+      .filter((product) => product.variants && product.variants.length > 0) // Only products with variants
+      .map((product) => {
+        const ratings = product.reviews?.map((r) => r.rating) || [];
+        const avgRating = ratings.length
+          ? ratings.reduce((a, b) => a + b, 0) / ratings.length
+          : 0;
+        // Remove reviews, add rating
+        const { reviews, ...rest } = product;
+        return {
+          ...rest,
+          rating: avgRating,
+        };
+      });
 
     // Filter by rating if needed
     let filteredItems = itemsWithRating;
@@ -224,8 +229,12 @@ export class ProductsRepository {
         take: limit,
         include: {
           product: {
-            include: {
-              reviews: true,
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              categoryId: true,
+              description: true,
             },
           },
         },
@@ -242,12 +251,6 @@ export class ProductsRepository {
     let filteredVariants = variants;
     if (minRating !== undefined || maxRating !== undefined) {
       filteredVariants = variants.filter((variant) => {
-        const ratings = variant.product.reviews?.map((r) => r.rating) || [];
-        const avgRating = ratings.length
-          ? ratings.reduce((a, b) => a + b, 0) / ratings.length
-          : 0;
-        if (minRating !== undefined && avgRating < minRating) return false;
-        if (maxRating !== undefined && avgRating > maxRating) return false;
         return true;
       });
     }
