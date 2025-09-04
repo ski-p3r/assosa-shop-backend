@@ -15,12 +15,14 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - .:/app
+      - ./src:/app/src
       - ./.env:/app/.env
     ports:
       - '8000:8000'
+    depends_on:
+      - aso-shop-postgres
     command: >
-      sh -c "pnpm install && pnpm build && pnpm start"
+      sh -c "pnpm build && pnpm start"
 
 volumes:
   postgres_data:
