@@ -10,6 +10,21 @@ services:
     ports:
       - '5432:5432'
 
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - ./.env:/app/.env
+    ports:
+      - '8000:8000'
+    depends_on:
+      aso-shop-postgres:
+        condition: service_healthy
+    command: >
+      sh -c "pnpm install && pnpm build && pnpm start"
+
 volumes:
   postgres_data:
     name: postgres_data
