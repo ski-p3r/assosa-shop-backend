@@ -7,6 +7,16 @@ export class CartsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(userId: string) {
+    // First, try to find the cart by userId
+    const existingCart = await this.prisma.cart.findFirst({
+      where: { userId },
+    });
+
+    if (existingCart) {
+      return existingCart;
+    }
+
+    // If not found, create a new cart
     return await this.prisma.cart.create({
       data: {
         userId,

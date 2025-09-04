@@ -9,6 +9,27 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - '5432:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - ./.env:/app/.env
+    ports:
+      - '8000:8000'
+    depends_on:
+      aso-shop-postgres:
+        condition: service_healthy
+    command: >
+      sh -c "pnpm install && pnpm build && pnpm start"
+    restart: unless-stopped
 
 volumes:
   postgres_data:
