@@ -50,30 +50,46 @@ export class CartsRepository {
     if (!cart) return null;
 
     // Map items to include required fields and calculate total per item
-    const items = cart.items.map((item) => {
-      const variant = item.variant;
-      if (!variant) {
+    const items = cart.items.map(
+      (item: {
+        id: string;
+        productId: string;
+        quantity: number;
+        cartId: string;
+        variantId: string;
+        variant: {
+          id: string;
+          imageUrl: string | null;
+          price: number;
+          product: {
+            name: string;
+          };
+        } | null;
+      }) => {
+        const variant = item.variant;
+        if (!variant) {
+          return {
+            id: item.id,
+            quantity: item.quantity,
+            variantId: null,
+            variantImage: null,
+            variantPrice: null,
+            productName: null,
+            total: 0,
+          };
+        }
+        const total = item.quantity * (variant.price || 0);
         return {
           id: item.id,
           quantity: item.quantity,
-          variantId: null,
-          variantImage: null,
-          variantPrice: null,
-          productName: null,
-          total: 0,
+          variantId: variant.id,
+          variantImage: variant.imageUrl,
+          variantPrice: variant.price,
+          productName: variant.product.name,
+          total,
         };
-      }
-      const total = item.quantity * (variant.price || 0);
-      return {
-        id: item.id,
-        quantity: item.quantity,
-        variantId: variant.id,
-        variantImage: variant.imageUrl,
-        variantPrice: variant.price,
-        productName: variant.product.name,
-        total,
-      };
-    });
+      },
+    );
 
     const allTotal = items.reduce((sum, item) => sum + item.total, 0);
 
