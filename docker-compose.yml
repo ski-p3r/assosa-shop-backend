@@ -19,9 +19,7 @@ services:
       - ./.env:/app/.env
     ports:
       - '8000:8000'
-    depends_on:
-      aso-shop-postgres:
-        condition: service_healthy
+    depends_on: aso-shop-postgres
     command: >
       sh -c "pnpm install && pnpm build && pnpm start"
 

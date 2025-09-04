@@ -21,7 +21,7 @@ export class ProductsRepository {
 
   async update(id: string, dto: UpdateProductDto) {
     return this.prisma.product.update({
-      where: { id   },
+      where: { id },
       data: {
         ...dto,
         ...(dto.name ? { slug: slugify(dto.name) } : {}),
@@ -33,7 +33,9 @@ export class ProductsRepository {
     await this.prisma.productVariant.deleteMany({
       where: { productId: id },
     });
-    return this.prisma.product.delete({ where: { id } });
+
+    await this.prisma.product.delete({ where: { id } });
+    return { message: 'Product and its variants deleted successfully' };
   }
 
   async findOne(id: string) {
