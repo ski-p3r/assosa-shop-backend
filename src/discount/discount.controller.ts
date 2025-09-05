@@ -15,7 +15,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { Roles } from '@/common/decorators/roles.decorator';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { RolesGuard } from '@/common/guards/roles.guard';
-import { Role } from 'prisma/src/generated/prisma-client';
+import { Role } from '@prisma/client';
 
 @ApiTags('discount')
 @Controller('discount')
