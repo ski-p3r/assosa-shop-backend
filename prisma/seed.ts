@@ -1,5 +1,5 @@
 import * as argon2 from 'argon2';
-import { PrismaClient } from './src/generated/prisma-client';
+import { PrismaClient } from '@prisma/client';
 
 export async function hashData(data: string): Promise<string> {
   return await argon2.hash(data);
