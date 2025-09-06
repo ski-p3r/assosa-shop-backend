@@ -164,6 +164,15 @@ export class OrderRepository {
           orderItems: true,
           invoice: true,
           deliveryAssignment: true,
+          customer: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+              phone: true,
+            },
+          },
         },
         skip,
         take: limit,
