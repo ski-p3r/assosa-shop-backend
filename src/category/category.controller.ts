@@ -33,6 +33,13 @@ export class CategoryController {
     return this.categoryService.create(dto);
   }
 
+  @Get('/all')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.MASTER_ADMIN)
+  async findAllAdmin(@Query() query: CategoryQueryDto) {
+    return this.categoryService.findAllAdmin(query);
+  }
+
   @Put(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.MASTER_ADMIN)

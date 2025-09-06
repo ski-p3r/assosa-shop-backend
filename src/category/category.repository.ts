@@ -62,6 +62,27 @@ export class CategoryRepository {
     });
   }
 
+  async findAllAdmin(query: CategoryQueryDto) {
+    const { search, parentId } = query;
+    return this.prisma.category.findMany({
+      where: {
+        AND: [
+          search
+            ? {
+                OR: [
+                  { name: { contains: search, mode: 'insensitive' } },
+                  { slug: { contains: search, mode: 'insensitive' } },
+                ],
+              }
+            : {},
+          parentId ? { parentId } : {},
+        ],
+      },
+      include: { children: true, parent: true },
+      orderBy: { name: 'asc' },
+    });
+  }
+
   async findNested() {
     return this.prisma.category.findMany({
       where: { parentId: null },

@@ -14,6 +14,10 @@ export class CategoryService {
     return this.repo.create(dto);
   }
 
+  async findAllAdmin(query: CategoryQueryDto) {
+    return this.repo.findAllAdmin(query);
+  }
+
   async update(id: string, dto: UpdateCategoryDto) {
     return this.repo.update(id, dto);
   }
