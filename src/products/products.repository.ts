@@ -61,7 +61,25 @@ export class ProductsRepository {
     });
   }
 
-  async findAll(query: ProductQueryDto, baseUrl?: string) {
+  async getAllDescendantCategoryIds(categoryId: string): Promise<string[]> {
+    const categoryIds = [categoryId]; // Include the parent category itself
+
+    // Get all direct children
+    const children = await this.prisma.category.findMany({
+      where: { parentId: categoryId },
+      select: { id: true },
+    });
+
+    // Recursively get descendants of each child
+    for (const child of children) {
+      const descendants = await this.getAllDescendantCategoryIds(child.id);
+      categoryIds.push(...descendants);
+    }
+
+    return categoryIds;
+  }
+
+  async findAll(query: any, baseUrl?: string) {
     let {
       search,
       categoryId,
@@ -74,14 +92,23 @@ export class ProductsRepository {
     } = query;
 
     // Ensure page and limit are numbers (not strings)
-    page = typeof page === 'string' ? parseInt(page, 10) : page;
-    limit = typeof limit === 'string' ? parseInt(limit, 10) : limit;
-    minPrice = typeof minPrice === 'string' ? parseFloat(minPrice) : minPrice;
-    maxPrice = typeof maxPrice === 'string' ? parseFloat(maxPrice) : maxPrice;
+    page = typeof page === 'string' ? Number.parseInt(page, 10) : page;
+    limit = typeof limit === 'string' ? Number.parseInt(limit, 10) : limit;
+    minPrice =
+      typeof minPrice === 'string' ? Number.parseFloat(minPrice) : minPrice;
+    maxPrice =
+      typeof maxPrice === 'string' ? Number.parseFloat(maxPrice) : maxPrice;
     minRating =
-      typeof minRating === 'string' ? parseFloat(minRating) : minRating;
+      typeof minRating === 'string' ? Number.parseFloat(minRating) : minRating;
     maxRating =
-      typeof maxRating === 'string' ? parseFloat(maxRating) : maxRating;
+      typeof maxRating === 'string' ? Number.parseFloat(maxRating) : maxRating;
+
+    let categoryFilter = {};
+    if (categoryId) {
+      // Get all descendant category IDs (including the parent)
+      const allCategoryIds = await this.getAllDescendantCategoryIds(categoryId);
+      categoryFilter = { categoryId: { in: allCategoryIds } };
+    }
 
     // Build where clause
     const where: any = {
@@ -95,7 +122,7 @@ export class ProductsRepository {
               ],
             }
           : {},
-        categoryId ? { categoryId } : {},
+        categoryFilter, // Using enhanced category filter instead of simple categoryId check
         minPrice !== undefined ? { basePrice: { gte: minPrice } } : {},
         maxPrice !== undefined ? { basePrice: { lte: maxPrice } } : {},
       ],
