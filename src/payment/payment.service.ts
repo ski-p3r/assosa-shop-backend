@@ -97,7 +97,6 @@ export class PaymentService {
     if (!data) {
       throw new NotFoundException('Order not found');
     }
-    console.log(data.paymentStatus);
 
     return { status: data.paymentStatus };
   }
@@ -144,10 +143,10 @@ export class PaymentService {
     // Prepare invoice payload based on order details
     const invoicePayload = {
       invoiceNumber,
-      shopName: 'Assosa Shop',
-      shopAddress: '123 Assosa St, Assosa, Ethiopia',
-      shopEmail: 'support@assosashop.com',
-      shopPhone: '+251-911-000-000',
+      shopName: 'Zumbara Shop',
+      shopAddress: '123 Commerce Street, Business District, Ethiopia',
+      shopEmail: 'support@zumbarashop.com',
+      shopPhone: '+251-911-123-456',
       billingDetails: {
         name: order.customer.firstName + ' ' + order.customer.lastName,
         email: order.customer.email,
@@ -160,8 +159,8 @@ export class PaymentService {
         address: order.customer.address,
         country: 'Ethiopia',
       },
-      items: order.orderItems.map((item: any) => ({
-        product: item.productName,
+      items: order.orderItems.map((item) => ({
+        product: item.product.name,
         quantity: item.quantity,
         price: item.price,
         total: item.quantity * item.price,
@@ -178,7 +177,7 @@ export class PaymentService {
       paymentMethod: order.paymentMethod,
       transactionId: invoiceNumber,
       footerNote:
-        'Thank you for your purchase! If you have any questions, contact us at support@assosashop.com',
+        'Thank you for shopping with Zumbara Shop! For support, contact us at support@zumbarashop.com',
     };
 
     const response = await axios.post(
@@ -219,10 +218,10 @@ export class PaymentService {
     // Prepare invoice payload based on order details
     const invoicePayload = {
       invoiceNumber,
-      shopName: 'Assosa Shop',
-      shopAddress: '123 Assosa St, Assosa, Ethiopia',
-      shopEmail: 'support@assosashop.com',
-      shopPhone: '+251-911-000-000',
+      shopName: 'Zumbara Shop',
+      shopAddress: '123 Commerce Street, Business District, Ethiopia',
+      shopEmail: 'support@zumbarashop.com',
+      shopPhone: '+251-911-123-456',
       billingDetails: {
         name: order.customer.firstName + ' ' + order.customer.lastName,
         email: order.customer.email,
@@ -236,7 +235,7 @@ export class PaymentService {
         country: 'Ethiopia',
       },
       items: order.orderItems.map((item: any) => ({
-        product: item.productName,
+        product: item.name,
         quantity: item.quantity,
         price: item.price,
         total: item.quantity * item.price,
@@ -253,7 +252,7 @@ export class PaymentService {
       paymentMethod: order.paymentMethod,
       transactionId: invoiceNumber,
       footerNote:
-        'Thank you for your purchase! If you have any questions, contact us at support@assosashop.com',
+        'Thank you for shopping with Zumbara Shop! For support, contact us at support@zumbarashop.com',
     };
 
     const response = await axios.post(

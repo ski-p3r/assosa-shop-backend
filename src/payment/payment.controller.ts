@@ -38,7 +38,7 @@ export class PaymentController {
     @Body() initializePaymentDto: InitializePaymentDto,
   ) {
     const { id } = req.user;
-    return this.paymentService.initializeInvoice(initializePaymentDto, id);
+    return this.paymentService.initInvoice(initializePaymentDto, 'pending');
   }
 
   @Post('/update-status')
